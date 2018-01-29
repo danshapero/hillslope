@@ -1,0 +1,63 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+%\usepackage{amsfonts}
+\usepackage{amsthm}
+%\usepackage{amssymb}
+%\usepackage{mathrsfs}
+%\usepackage{fullpage}
+%\usepackage{mathptmx}
+%\usepackage[varg]{txfonts}
+\usepackage{color}
+\usepackage[charter]{mathdesign}
+\usepackage[pdftex]{graphicx}
+%\usepackage{float}
+%\usepackage{hyperref}
+%\usepackage[modulo, displaymath, mathlines]{lineno}
+%\usepackage{setspace}
+%\usepackage[titletoc,toc,title]{appendix}
+
+%\linenumbers
+%\doublespacing
+
+\theoremstyle{definition}
+\newtheorem*{defn}{Definition}
+\newtheorem*{exm}{Example}
+
+\theoremstyle{plain}
+\newtheorem*{thm}{Theorem}
+\newtheorem*{lem}{Lemma}
+\newtheorem*{prop}{Proposition}
+\newtheorem*{cor}{Corollary}
+
+\newcommand{\argmin}{\text{argmin}}
+\newcommand{\ud}{\hspace{2pt}\mathrm{d}}
+\newcommand{\bs}{\boldsymbol}
+\newcommand{\PP}{\mathsf{P}}
+
+\title{Action principles for nonlinear hillslope transport}
+\author{Daniel Shapero}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+The elevation $z$ of a sedimentary landscape with an uplift rate $U$ evolves according to the nonlinear parabolic PDE
+\begin{equation}
+    \rho_s\left(\frac{\partial z}{\partial t} - \nabla\cdot\frac{k\nabla z}{1 - S_c^{-2}|\nabla z|^2}\right) = \rho_r U.
+\end{equation}
+The nonlinear part of this operator can be derived from an action principle.
+Define the functional
+\begin{equation}
+    J(z) = -\frac{k S_c^2}{2}\int_\Omega \ln\left(1 - S_c^{-2}|\nabla z|^2\right)\ud x.
+\end{equation}
+The nonlinear part of the hillslope evolution operator is the derivative of this functional.
+One of the consequences of this fact is that hillslope evolution is a \emph{gradient flow}, in the dynamical systems sense.
+This means that
+\begin{equation}
+    \left\langle\frac{\partial z}{\partial t}, w\right\rangle = -\langle \ud J(z), w\rangle + \frac{\rho_r}{\rho_s}\langle U, w\rangle
+\end{equation}
+where $\langle\cdot, \cdot\rangle$ is the duality pairing.
+
+\end{document}
