@@ -7,7 +7,7 @@
 %\usepackage{mathrsfs}
 %\usepackage{fullpage}
 %\usepackage{mathptmx}
-%\usepackage[varg]{txfonts}
+\usepackage[varg]{txfonts}
 \usepackage{color}
 \usepackage[charter]{mathdesign}
 \usepackage[pdftex]{graphicx}
@@ -45,19 +45,36 @@
 
 The elevation $z$ of a sedimentary landscape with an uplift rate $U$ evolves according to the nonlinear parabolic PDE
 \begin{equation}
-    \rho_s\left(\frac{\partial z}{\partial t} - \nabla\cdot\frac{k\nabla z}{1 - S_c^{-2}|\nabla z|^2}\right) = \rho_r U.
-\end{equation}
-The nonlinear part of this operator can be derived from an action principle.
-Define the functional
+    \frac{\partial z}{\partial t} = \nabla\cdot\frac{k\nabla z}{1 - S_c^{-2}|\nabla z|^2} + \frac{\rho_r}{\rho_s}U.
+\label{hillslope-eqn}\end{equation}
+The right-hand side of this equation can be written as the derivative of an \emph{action functional}.
+The action is
 \begin{equation}
-    J(z) = -\frac{k S_c^2}{2}\int_\Omega \ln\left(1 - S_c^{-2}|\nabla z|^2\right)\ud x.
+    J(z) = -\int_\Omega\left\{\frac{k S_c^2}{2}\ln\left(1 - S_c^{-2}|\nabla z|^2\right) + \rho_r/\rho_s U\cdot z\right\}\ud x.
 \end{equation}
-The nonlinear part of the hillslope evolution operator is the derivative of this functional.
-One of the consequences of this fact is that hillslope evolution is a \emph{gradient flow}, in the dynamical systems sense.
+This means that, for any perturbation $w$ satisfying the boundaring conditions for the original problem,
+\begin{equation}
+    J(z + \delta\cdot w) = J(z) - \delta\int_\Omega\left\{\frac{k\nabla z\cdot \nabla w}{1 - S_c^{-2}|\nabla z|^2} + \rho_r/\rho_s U\cdot w\right\}\ud x + \mathcal{O}(\delta^2).
+\end{equation}
+The first-order term in $\delta$ is the weak form of the right-hand side of \eqref{hillslope-eqn}.
+
+One consequence is that hillslope evolution is a \emph{gradient flow}.
 This means that
 \begin{equation}
-    \left\langle\frac{\partial z}{\partial t}, w\right\rangle = -\langle \ud J(z), w\rangle + \frac{\rho_r}{\rho_s}\langle U, w\rangle
+    \frac{\partial z}{\partial t} = -dJ(z).
 \end{equation}
-where $\langle\cdot, \cdot\rangle$ is the duality pairing.
+The nice part about gradient flows is that the potential $J$ tends to decrease along trajectories.
+We can see this by calculating the time derivative of $J(z)$:
+\begin{equation}
+    \frac{\ud}{\ud t}J(z) = dJ(z)\cdot\frac{\partial z}{\partial t} = -\|dJ(z)\|^2 \le 0.
+\end{equation}
+The properties of $J$ can then tell us about the stability of the dynamical system.
+In our case, $J$ is a convex functional on the set of all elevation fields $z$ such that the maximum slope of $z$ is less than the critical slope $S_c$.
+
+This analysis assumes that the uplift rate $U$ is constant in time.
+If $U$ is time-dependent, we have to add terms including the explicit dependence of $J$ on time, but the idea is still the same.
+
+From a numerical standpoint, we can leverage the fact that $J$ is convex to come up with optimal nonlinear solvers for \eqref{hillslope-eqn}.
+Additionally, the variational formulation makes it easy to come up with an implicit time discretization, provided we're using either spectral or finite element methods.
 
 \end{document}
