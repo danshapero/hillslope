@@ -75,6 +75,14 @@ This analysis assumes that the uplift rate $U$ is constant in time.
 If $U$ is time-dependent, we have to add terms including the explicit dependence of $J$ on time, but the idea is still the same.
 
 From a numerical standpoint, we can leverage the fact that $J$ is convex to come up with optimal nonlinear solvers for \eqref{hillslope-eqn}.
-Additionally, the variational formulation makes it easy to come up with an implicit time discretization, provided we're using either spectral or finite element methods.
+To solve a nonlinear equation, you have to specify a convergence tolerance, but often the tolerance has to be tuned for your specific problem.
+This tuning doesn't necessarily carry over to other problems posed with different input data or on different geometries.
+If the problem comes from a convex action functional, however, the positive part of the action gives a dimensional scale for the problem that we can use to set a tolerance of the correct units, given a desired non-dimensional tolerance.
+
+Action principles are convenient for other reasons beyond making the numerical analysis easier.
+The value of the action is an ``objective'' quantity, regardless of how you're approximating the solution of the problem.
+If you're using finite difference methods and I'm using finite element methods, we can both compare the value of the action that we found for the same problem, even though our solutions themselves aren't directly comparable without interpolating one representation to the other.
+Second, from a conceptual viewpoint, a lot of the post-processing you might want to do on the solution of a PDE amounts to evaluating some linear or nonlinear functional.
+Action principles are nice because the specification of the problem and the analysis of the solution use the same conceptual vocabulary.
 
 \end{document}
