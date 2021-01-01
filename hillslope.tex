@@ -7,6 +7,7 @@
 %\usepackage{mathrsfs}
 %\usepackage{fullpage}
 %\usepackage{mathptmx}
+\usepackage{natbib}
 \usepackage[varg]{txfonts}
 \usepackage{color}
 \usepackage[charter]{mathdesign}
@@ -43,46 +44,110 @@
 
 \maketitle
 
-The elevation $z$ of a sedimentary landscape with an uplift rate $U$ evolves according to the nonlinear parabolic PDE
+In this paper we'll describe (1) a mathematical principle that can be used to describe hillslope transport in a new way and (2) how this principle can be used to design more robust numerical approximation schemes.
+The mathematical techniques that we'll use come from the \emph{calculus of variations}.
+The calculus of variations, defined broadly, extends the ideas of multivariable calculus to problems where the independent variable is a field, like the surface elevation, defined throughout time and space.
+Much like how multivariable calculus provides the essential tools needed to optimize functions of several variables, the calculus of variations provides the tools needed to optimize functionals of spatiotemporal fields.
+A classic problem in the calculus of variations is to determine the shape of a soap film stretched over a wire hoop that has been deformed into some non-planar shape.
+The film will settle into an equilibrium state that minimizes the free energy of surface tension, which is proportional to the area.
+The independent variable is the shape of the film, which is a function defined on a 2D domain, and the quantity to be optimized is the surface area.
+The equation that expresses optimality of the film shape is a nonlinear partial differential equation.
+As we'll show in the following, the nonlinear partial differential equations of hillslope transport have their own optimality principle.
+Other physics problems where the calculus of variations has been especially fruitful include electromagnetism, gravitation, linear and nonlinear solid mechanics, and fluid mechanics at low Reynolds number.
+
+\section{The diffusion equation}
+
+Rather than start with nonlinear hillslope transport, we'll start with a simpler model first.
+The earliest mathematical models of hillslope transport describe the evolution of the surface $z$ using the diffusion equation:
 \begin{equation}
-    \frac{\partial z}{\partial t} = \nabla\cdot\frac{k\nabla z}{1 - S_c^{-2}|\nabla z|^2} + \frac{\rho_r}{\rho_s}U.
+    \frac{\partial z}{\partial t} = \nabla\cdot D\nabla z + U
+\end{equation}
+where $D$ is the diffusion coefficient and $U$ is the uplift rate.
+We'll assume for simplicity that $z$ is fixed to some particular value $g$ around the boundary of the domain $\Omega$ on which the problem is posed.
+
+In the following, we will instead describe PDEs using their \emph{weak form}.
+The weak form of the diffusion equation states that $z$ is a solution if, for all test functions $w$ such that $w|_{\partial\Omega} = 0$,
+\begin{equation}
+    \int_\Omega\left(\frac{\partial z}{\partial t}w + D\nabla z\cdot\nabla w - Uw\right)dx = 0.
+\end{equation}
+The weak form most naturally lends itself to discretization via the finite element method.
+For a review of weak forms of PDE, see \citet{folland1995introduction}.
+
+The diffusion equation is a special kind of evolutionary problem in that it can be described through a \emph{free energy functional} of the state $z$ of the system at each time.
+For the linear diffusion equation, the free energy is
+\begin{equation}
+    J(z) = \int_\Omega\left(\frac{1}{2}D|\nabla z|^2 - Uz\right)dx.
+\end{equation}
+The significance of this functional is that it completely characterizes the dynamics of the system:
+\begin{equation}
+    \frac{\partial z}{\partial t} + \frac{dJ}{dz} = 0
+\end{equation}
+where $dJ/dz$ is the \emph{functional derivative} of $J$ \citep{weinstock1974calculus}.
+This particular type of equation is called a \emph{gradient flow} because the trajectories of $z$ always follow the negative gradient of $J$.
+An important consequence is that $J$ decreases along trajectories.
+The elevation field $z$ in which the system is in a steady state is a critical point of $J$, i.e. $dJ/dz = 0$.
+Since one can show that $J$ is convex, this critical point is a minimum.
+
+When using the diffusion equation to describe heat flow, the free energy functional $J$ really is proportional to the thermodynamic free energy of the system.
+The fact that temperature should evolve as a gradient flow for the free energy is precisely an expression of the Onsager reciprocity relation \citep{onsager1931reciprocal}.
+
+
+\section{Nonlinear hillslope transport}
+
+Diffusive transport tends to give landscapes of roughly equal curvature everywhere, whereas real landscapes tend to have roughly planar faces of equal slope everywhere joined by sharp ridges.
+Roering et al. 1999 first posed the alternative model that the diffusion coefficient $D$ becomes infinite in the limit as the slope $\nabla z$ approaches some critical slope $S_c$.
+The elevation $z$ then evolves as
+\begin{equation}
+    \frac{\partial z}{\partial t} = \nabla\cdot\frac{k\nabla z}{1 - S_c^{-2}|\nabla z|^2} + U.
 \label{hillslope-eqn}\end{equation}
-The right-hand side of this equation can be written as the derivative of an \emph{action functional}.
-The action is
-\begin{equation}
-    J(z) = -\int_\Omega\left\{\frac{k S_c^2}{2}\ln\left(1 - S_c^{-2}|\nabla z|^2\right) + \rho_r/\rho_s U\cdot z\right\}\ud x.
-\end{equation}
-This means that, for any perturbation $w$ satisfying the boundaring conditions for the original problem,
-\begin{equation}
-    J(z + \delta\cdot w) = J(z) - \delta\int_\Omega\left\{\frac{k\nabla z\cdot \nabla w}{1 - S_c^{-2}|\nabla z|^2} + \rho_r/\rho_s U\cdot w\right\}\ud x + \mathcal{O}(\delta^2).
-\end{equation}
-The first-order term in $\delta$ is the weak form of the right-hand side of \eqref{hillslope-eqn}.
+The elevation fields that result from these dynamics were found to give much better agreement with real landscapes than the linear diffusion equation.
 
-One consequence is that hillslope evolution is a \emph{gradient flow}.
-This means that
+The linear diffusion equation is a gradient flow and this begs the question of whether nonlinear hillslope transport has the same property.
+To answer that question affirmatively, we would need to find what the free energy functional is.
+By matching the Euler-Lagrange equations for an arbitrary functional to the right-hand side of the last equation, the correct free energy functional for nonlinear hillslope transport is
 \begin{equation}
-    \frac{\partial z}{\partial t} = -dJ(z).
+    J(z) = -\int_\Omega\left\{\frac{k S_c^2}{2}\ln\left(1 - S_c^{-2}|\nabla z|^2\right) + U z\right\}\ud x.
+    \label{eq:nonlinear-hillslope-potential}
 \end{equation}
-The nice part about gradient flows is that the action $J$ always decreases along trajectories.
-We can see this by calculating the time derivative of $J(z)$:
-\begin{equation}
-    \frac{\ud}{\ud t}J(z) = dJ(z)\cdot\frac{\partial z}{\partial t} = -\|dJ(z)\|^2 \le 0.
-\end{equation}
-The properties of $J$ can then tell us about the stability of the dynamical system.
-In our case, $J$ is a convex functional on the set of all elevation fields $z$ such that the maximum slope of $z$ is less than the critical slope $S_c$.
+Like the linear diffusion equation, the free energy is convex, so the steady state of the system is the unique minimizer of $J$ rather than one of possibly many indefinite critical points.
+To our knowledge, the fact that nonlinear hillslope transport is a gradient flow for the free energy in equation \eqref{eq:nonlinear-hillslope-potential} has not appeared in the geomorphology literature before.
 
-This analysis assumes that the uplift rate $U$ is constant in time.
-If $U$ is time-dependent, we have to add terms including the explicit dependence of $J$ on time, but the idea is still the same.
+For the particular case of heat flow, the quantity that we've referred to here as the ``free energy functional'' coincides exactly with the free energy defined in non-equilibrium thermodynamics.
+Nonlinear hillslope transport behaves in an analogous way and this suggests an interpretation in terms of non-equilibrium thermodynamics.
+This possibility merits investigation.
+Our focus in the remainder of this paper, however, is on how to use the free energy functional to better numerically approximate how the elevation evolves in time.
+
+
+\section{Numerics}
+
+Nonlinear hillslope transport is a parabolic PDE.
+For these types of problems, implicit timestepping schemes do the best job of guaranteeing stability at reasonable computational expense.
+For a general nonlinear problem, however, solving these implicit equations can be challenging.
+Hillslope transport is especially difficult because some of the quantities involved can become infinite.
+A numerical solution procedure designed without special care can be error-prone and, for geomorphologists who are not experts in numerical analysis, frustrating to use.
+The fact that hillslope transport is a gradient flow for a fairly simple free energy provides us with problem-specific knowledge that we can use to remedy these difficulties.
 
 From a numerical standpoint, we can leverage the fact that $J$ is convex to come up with optimal nonlinear solvers for \eqref{hillslope-eqn}.
 To solve a nonlinear equation, you have to specify a convergence tolerance, but often the tolerance has to be tuned for your specific problem.
 This tuning doesn't necessarily carry over to other problems posed with different input data or on different geometries.
 If the problem comes from a convex action functional, however, the positive part of the action gives a dimensional scale for the problem that we can use to set a tolerance of the correct units, given a desired non-dimensional tolerance.
 
-Action principles are convenient for other reasons beyond making the numerical analysis easier.
-The value of the action is an ``objective'' quantity, regardless of how you're approximating the solution of the problem.
-If you're using finite difference methods and I'm using finite element methods, we can both compare the value of the action that we found for the same problem, even though our solutions themselves aren't directly comparable without interpolating one representation to the other.
-Second, from a conceptual viewpoint, a lot of the post-processing you might want to do on the solution of a PDE amounts to evaluating some linear or nonlinear functional.
-Action principles are nice because the specification of the problem and the analysis of the solution use the same conceptual vocabulary.
+\section{Demonstration}
+
+As an illustration of the concepts described above, we will reproduce one of the computational experiments from \citet{roering2008well}.
+
+\section{Conclusion}
+
+Variational principles are convenient for other reasons beyond making numerical analysis easier.
+The value of the free energy is an ``objective'' quantity defined purely in terms of the solution and not on how the problem was discretized.
+Supose that two simulations are conducted of the same physical system with, say, the finite difference and finite element method.
+The discretized system states from each simulation are not directly comparable without interpolating one representation to the other.
+But the value of the free energy can be calculated in each case and compared, since it is only a scalar.
+Other quantities, such as the residual norm for the problem, are not directly comparable between different numerical methods because they depend explicitly on how the problem was discretized, even though they are scalars.
+Second, from a conceptual viewpoint, much of the post-processing or analysis that researchers do on the solutions of PDE amounts to evaluating some linear or nonlinear functional.
+Variational principles are convenient from a learning standpoint because the specification of the problem and the analysis of the solution use the same conceptual vocabulary.
+
+\bibliographystyle{plainnat}
+\bibliography{hillslope.bib}
 
 \end{document}
