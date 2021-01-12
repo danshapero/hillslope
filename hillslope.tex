@@ -118,6 +118,30 @@ This possibility merits investigation.
 Our focus in the remainder of this paper, however, is on how to use the free energy functional to better numerically approximate how the elevation evolves in time.
 
 
+\section{Dual variational principles}
+
+Every convex variational principle also posses a \emph{dual} form obtained through a \emph{Legendre transformation}.
+To illustrate this, one can consider the dual form of the Poisson or heat equation described above.
+The primal formulation uses the temperature as the main dynamical variable and the condition equilibrium is that the free energy production rate should be minimized.
+The dual formulation uses both the temperature and the heat flux as unknowns.
+The equilibrium condition is now a maximization principle together with the Fourier law of diffusion as a constraint.
+
+The nonlinear hillslope functional is also convex and so we can consider its Legendre transformation.
+Let
+\begin{equation}
+    q = \frac{-k\nabla z}{1 - S_c^{-2}|\nabla z|^2}
+\end{equation}
+be the mass flux for the hillslope transport problem.
+Then the Legendre transformation of the hillslope free energy functional is
+\begin{equation}
+    L(z, q) = \int_\Omega\left\{kS_c^2\ln\left(\frac{2}{\sqrt{4|q|^2 / k^2S_c^2 + 1} + 1}\right) + (U - \nabla\cdot q)z\right\}\ud x.
+\end{equation}
+(The derivation is shown in Appendix \ref{sec:appendix}.)
+At first glance, this reformulation only makes the problem more complicated.
+We've added another diagnostic field and made the numerics harder because the selection of basis functions that satisfy the LBB conditions for this mixed problem is much more delicate.
+The saving grace of the dual formulation however is that, by inverting the constitutive relation, the integrand now has no singularities.
+
+
 \section{Numerics}
 
 Nonlinear hillslope transport is a parabolic PDE.
@@ -146,6 +170,41 @@ But the value of the free energy can be calculated in each case and compared, si
 Other quantities, such as the residual norm for the problem, are not directly comparable between different numerical methods because they depend explicitly on how the problem was discretized, even though they are scalars.
 Second, from a conceptual viewpoint, much of the post-processing or analysis that researchers do on the solutions of PDE amounts to evaluating some linear or nonlinear functional.
 Variational principles are convenient from a learning standpoint because the specification of the problem and the analysis of the solution use the same conceptual vocabulary.
+
+\appendix
+\section{The Legendre transformation of the free energy}\label{sec:appendix}
+
+The original form of the problem expresses the flux $q$ in terms of the slope $\nabla z$ as
+\begin{equation}
+    q = \frac{-k\nabla z}{1 - S_c^{-2}|\nabla z|^2}.
+    \label{eq:flux}
+\end{equation}
+To find the Legendre transformation of the hillslope free energy functional, we need to invert this relation to find the flux in terms of the slope.
+However due to the particular form of the hillslope free energy, it's enough to instead ascertain what $1 - S_c^{-2}|\nabla z|^2$ is in terms of the flux.
+Let
+\begin{equation}
+\xi = 1 - S_c^{-2}|\nabla z|^2,
+\end{equation}
+in which case we can then write
+\begin{equation}
+    |\nabla z|^2 = S_c^2(1 - \xi).
+\end{equation}
+Letting $Q = q / kS_c$, we can take the squared magnitude of equation \eqref{eq:flux} and substitute into the previous equation to arrive at the quadratic
+\begin{equation}
+    |Q|^2\xi^2 + \xi - 1 = 0.
+\end{equation}
+The two roots of this equation are
+\begin{equation}
+    \xi_{\pm} = \frac{-1 \pm \sqrt{1 + 4|Q|^2}}{2|Q|^2}.
+\end{equation}
+Since the solution $\xi$ must be greater than 0, only the positive root makes physical sense.
+We can then multiply by 1 in a clever way to arrive at an even simpler expression:
+\begin{align}
+    \xi & = \frac{\sqrt{1 + 4|Q|^2} - 1}{2|Q|^2} \\
+    & = \frac{\sqrt{1 + 4|Q|^2} - 1}{2|Q|^2} \cdot \underbrace{\frac{\sqrt{1 + 4|Q|^2} + 1}{\sqrt{1 + 4|Q|^2} + 1}}_{= 1} \\
+    & = \frac{2}{\sqrt{1 + 4|Q|^2} + 1}.
+\end{align}
+Substituting this last equation and the definition of $\xi$ into the original hillslope free energy functional gives the Legendre transformation.
 
 \bibliographystyle{plainnat}
 \bibliography{hillslope.bib}
