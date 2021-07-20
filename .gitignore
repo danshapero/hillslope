@@ -1,5 +1,11 @@
+*.tif
+
+*.geo
+*.msh
+
 __pycache__/
 .ipynb_checkpoints/
+
 *.aux
 *.log
 *.pdf
